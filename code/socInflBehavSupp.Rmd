@@ -1,0 +1,37 @@
+---
+title: "Supplement"
+author: "Rebecca Martin"
+date: "2/1/2018"
+output: 
+    html_document:
+        code_folding: 'hide'
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Individual Differences Analysis
+
+## Clean individuals differences data
+
+```{r cleanIndDiffsData, include=FALSE}
+
+#lasdlkfjasld
+```
+
+## Statistical analysis of social influence effects with all individual difference measures
+
+```{r IndDiffsAllRegression}
+#lskdjflksdjf
+```
+
+## MORE IND DIFFS ANALYSIS...
+
+## Individual differences and conformity correlation plots
+
+```{r indDiffsAndConformCorrPlots}
+
+
+```
