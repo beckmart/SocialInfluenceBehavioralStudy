@@ -4,34 +4,361 @@ author: "Rebecca Martin"
 date: "2/1/2018"
 output: 
     html_document:
+        df_print: 'paged'
+        toc: true
+        toc_float:
+            collapsed: false
+            smooth_scroll: true
+        number_sections: true
+        code_download: true
+        self_contained: true
         code_folding: 'hide'
+---
     
 ---
+# Set up 
+## Settings
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setDirs}
+root <- rprojroot::find_rstudio_root_file()
+dataDir <- file.path(root, 'data')
+codeDir <- file.path(root, 'code')
+figureDir <- file.path(root, 'figures')
 ```
 
-# Individual Differences Analysis
+## Packages
 
-## Clean individuals differences data
-
-```{r cleanIndDiffsData, include=FALSE}
-
-#lasdlkfjasld
+```{r libraries, message=FALSE, warning=FALSE}
+library(reshape2)
+library(plyr)
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(car)
+source(file.path(codeDir, "CreateFunctions.R"))
+source(file.path(codeDir, "correlate_multiple_specific_variables.R"))
 ```
 
-## Statistical analysis of social influence effects with all individual difference measures
+## Read in data and make subsets
 
-```{r IndDiffsAllRegression}
-#lskdjflksdjf
+```{r readdata}
+phase2merged <- read.table(file.path(dataDir, 'new_anon.txt'), header=TRUE, sep='\t')
+teens <- read.table(file.path(dataDir, 'teensonly.txt'), header=TRUE, sep='\t')
+adults <- read.table(file.path(dataDir, 'adultsonly.txt'), header=TRUE, sep='\t')
+
+phase2merged$group = factor(phase2merged$group, labels = c("Adults", "Adolesc")) # changes levels for graphing
 ```
 
-## MORE IND DIFFS ANALYSIS...
+## Make subsets
 
-## Individual differences and conformity correlation plots
+```{r liked-disliked}
+likedAll <- phase2merged %>% 
+    filter(phase1rating > 4)
 
-```{r indDiffsAndConformCorrPlots}
+likedTeens <- teens %>% 
+    filter(phase1rating > 4)
 
+likedAdults <- adults %>% 
+    filter(phase1rating > 4)
 
+dislikedAll <- phase2merged %>% 
+    filter(phase1rating < 4)
+
+dislikedTeens <- teens %>% 
+    filter(phase1rating < 4)
+
+dislikedAdults <- adults %>% 
+    filter(phase1rating < 4)
+
+neutAll <- phase2merged %>% 
+    filter(phase1rating == 4)
+
+neutTeens <- teens %>% 
+    filter(phase1rating == 4)
+
+neutAdults <- adults %>% 
+    filter(phase1rating == 4)
 ```
+
+## Make matched dataset based on items both teens and adults gave similar ratings to (i.e. ratings that were within .5 points of each other)
+
+```{r groupmatched}
+matchedAll <- phase2merged %>%  dplyr::filter(condimage %in% c(102, 105, 120, 123, 125, 126, 136, 137, 138, 139,141, 142, 144, 147, 148, 149, 150, 151, 153, 158, 159, 160, 162, 164, 165, 167, 168, 170, 172,173, 175, 176, 177, 178, 179, 181, 182, 184, 187, 188, 189, 208, 227, 228, 229, 231, 232,	233, 234, 235, 236, 237, 239, 241, 242, 243, 250, 257, 259, 266, 268, 277, 281, 282, 285, 288, 289))
+
+matchedLikeAll <- matchedAll %>% filter(phase1rating > 4)
+matchedLikeTeens <- matchedLikeAll %>% filter(group == "Adolesc")
+matchedLikeAdults <- matchedLikeAll %>% filter(group == "Adults")
+```
+
+## Grand mean center and get adjusted means for teens and adults for plotting (liked only)
+
+```{r meanCenter}
+# all
+p1_gmcenter = scale(likedAll$phase1rating, scale=F)
+likedAll$p1rating_gmcenter <- p1_gmcenter
+likedAll$p1rating_gmcenter <- as.numeric(likedAll$p1rating_gmcenter)
+
+# residuals
+adjmeans_all = lmer(phasediffrating ~ p1rating_gmcenter+(1+p1rating_gmcenter|subjid), data=likedAll)
+likedAll$resid <- resid(adjmeans_all)
+
+## Center by age group
+likedAll <- within(likedAll, {phase1ratingGM = ave(phase1rating, group , FUN = mean)})
+likedAll$phase1ratingGC <- likedAll$phase1rating - likedAll$phase1ratingGM
+
+## Make adjusted change scores (residuals controlling for time 1 ratings) for graphing
+adjmeans_phasediffrating <- lmer(phasediffrating ~ phase1ratingGC + (1 + phase1ratingGC|subjid), data=likedAll)
+likedAll$adjphasediffratingGV <- resid(adjmeans_phasediffrating)
+```
+
+## Grand mean center and get adjusted means for teens and adults for plotting (MATCHED liked only)
+
+```{r meanCenterMatched}
+# all
+p1_gmcenter = scale(matchedLikeAll$phase1rating, scale=F)
+matchedLikeAll$p1rating_gmcenter <- p1_gmcenter
+matchedLikeAll$p1rating_gmcenter <- as.numeric(matchedLikeAll$p1rating_gmcenter)
+
+# residuals
+adjmeans_all = lmer(phasediffrating ~ p1rating_gmcenter+(1+p1rating_gmcenter|subjid), data=matchedLikeAll)
+matchedLikeAll$resid <- resid(adjmeans_all)
+
+## Center by age group
+matchedLikeAll <- within(matchedLikeAll, {phase1ratingGM = ave(phase1rating, group , FUN = mean)})
+matchedLikeAll$phase1ratingGC <- matchedLikeAll$phase1rating - matchedLikeAll$phase1ratingGM
+
+## Make adjusted change scores (residuals controlling for time 1 ratings) for graphing
+adjmeans_phasediffrating <- lmer(phasediffrating ~ phase1ratingGC + (1 + phase1ratingGC|subjid), data=matchedLikeAll)
+matchedLikeAll$adjphasediffratingGV <- resid(adjmeans_phasediffrating)
+```
+
+## Make theme 
+
+```{r make_theme, echo=FALSE, results='hide', message=FALSE}
+beckys.theme = theme(panel.background = element_rect(fill='transparent'),
+                        axis.line = element_line(color='black'),
+                        panel.grid.minor = element_line(color='transparent'),
+                        axis.title.x = element_text(size=20, vjust=-.25),
+                        axis.title.y = element_text(size=20, vjust=1),
+                        axis.text.x = element_text(size=16, colour="black"),
+                        axis.text.y = element_text(size=16, colour="black"),
+                        legend.text=element_text(size=14))
+
+beckys.theme.conference = theme(panel.background = element_rect(fill='transparent'),
+                        axis.line = element_line(color='black'),
+                        panel.grid.minor = element_line(color='transparent'),
+                        axis.title.x = element_text(size=24, vjust=-.25, face = "bold"),
+                        axis.title.y = element_text(size=24, vjust=1, face = "bold"),
+                        axis.text.x = element_text(size=16, colour="black"),
+                        axis.text.y = element_text(size=16, colour="black"),
+                        legend.text=element_text(size=16),
+                        strip.text.y = element_text(size = 16),
+                        strip.text.x = element_text(size = 16))
+```
+
+# Plot 
+
+## Distribution of ratings density plot LIKED
+
+```{r distPlot}
+distbytrial = ggplot(likedAll, aes(x=phase1rating,fill=group)) + 
+  geom_density(adjust=2, alpha=.7) + # add , colour=NA if want to take out black outlines
+  beckys.theme +
+  scale_x_continuous(limits = c(1, 7), breaks=seq(1, 7,1)) +
+  scale_fill_manual(values=c("#1f78b4","#a6cee3")) + 
+  scale_linetype_manual(values=c("#1f78b4","#a6cee3")) + 
+  guides(fill = guide_legend(reverse = TRUE, override.aes = list(colour = NULL))) +
+  xlab("Initial Ratings") +
+  ylab("Density") +
+  #theme(legend.key = element_rect(colour = "black"))
+  beckys.theme.conference +
+  theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
+
+distbytrial
+```
+
+## Distribution of ratings density plot MATCHED LIKED
+
+```{r distPlotMatched}
+distbytrial = ggplot(matchedLikeAll, aes(x=phase1rating,fill=group)) + 
+  geom_density(adjust=2, alpha=.7) + # add , colour=NA if want to take out black outlines
+  beckys.theme +
+  scale_x_continuous(limits = c(1, 7), breaks=seq(1, 7,1)) +
+  scale_fill_manual(values=c("#1f78b4","#a6cee3")) + 
+  scale_linetype_manual(values=c("#1f78b4","#a6cee3")) + 
+  guides(fill = guide_legend(reverse = TRUE, override.aes = list(colour = NULL))) +
+  xlab("Initial Ratings") +
+  ylab("Density") +
+  #theme(legend.key = element_rect(colour = "black"))
+  beckys.theme.conference +
+  theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
+
+distbytrial
+```
+
+## Average ratings by group LIKED
+
+```{r avgPlot}
+overallaverages <- plyr::ddply(likedAll, c("subjid","group"), summarise, phase1rating=mean(phase1rating))
+overallaverages$group = factor(overallaverages$group, levels = rev(levels(factor(overallaverages$group))))
+overallavg_summary = summarySE(overallaverages, measurevar="phase1rating", groupvars=c("group"))
+
+overallavg_summary
+
+overallavg_point <-  ggplot(overallaverages, aes(x=group, y=phase1rating, color=group, group=group)) 
+
+overallavg_point + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.width = .2), size=3, alpha=.7) +
+  #scale_color_brewer(palette="Paired") +
+scale_color_manual(values=c("#6baed6","#1f78b4")) + 
+  geom_errorbar(data=overallavg_summary, aes(ymin=phase1rating-se, ymax=phase1rating+se), width=.3, position=position_dodge(.7), size=1.5, alpha=1, color="black") +
+  geom_point(data=overallavg_summary, position=position_dodge(.7), stat="identity", size=5, mapping=aes(x=group, y=phase1rating, color=group), alpha=1, color="black") + 
+  xlab("Age Group") + 
+  ylab("Average Initial Rating") + 
+  scale_y_continuous(limits = c(1, 7), breaks=seq(1, 7, 1)) +
+  beckys.theme.conference +
+  #geom_hline(aes(yintercept=0), size=.75) + 
+  theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
+
+# ggsave("figures/meanRatingbyGroup.pdf", width=5, height=7, dpi=300)
+```
+
+## Average ratings by group MATCHED LIKED
+
+```{r avgPlotMatched}
+overallaverages <- plyr::ddply(matchedLikeAll, c("subjid","group"), summarise, phase1rating=mean(phase1rating))
+overallaverages$group = factor(overallaverages$group, levels = rev(levels(factor(overallaverages$group))))
+overallavg_summary = summarySE(overallaverages, measurevar="phase1rating", groupvars=c("group"))
+
+overallavg_summary
+
+overallavg_point <-  ggplot(overallaverages, aes(x=group, y=phase1rating, color=group, group=group)) 
+
+overallavg_point + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.width = .2), size=3, alpha=.7) +
+  #scale_color_brewer(palette="Paired") +
+scale_color_manual(values=c("#6baed6","#1f78b4")) + 
+  geom_errorbar(data=overallavg_summary, aes(ymin=phase1rating-se, ymax=phase1rating+se), width=.3, position=position_dodge(.7), size=1.5, alpha=1, color="black") +
+  geom_point(data=overallavg_summary, position=position_dodge(.7), stat="identity", size=5, mapping=aes(x=group, y=phase1rating, color=group), alpha=1, color="black") + 
+  xlab("Age Group") + 
+  ylab("Average Initial Rating") + 
+  scale_y_continuous(limits = c(1, 7), breaks=seq(1, 7, 1)) +
+  beckys.theme.conference +
+  #geom_hline(aes(yintercept=0), size=.75) + 
+  theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
+
+# ggsave("figures/meanRatingbyGroup.pdf", width=5, height=7, dpi=300)
+```
+
+## Summary stats for mean change group centered LIKED
+
+```{r groupCentSummary}
+# Summarise phasediffrating and adj phasediffrating by subject
+## categorically
+averagesbygroup <- plyr::ddply(likedAll, c("subjid", "Phase1PCond2", "group"), summarise, adjratingchange=mean(adjphasediffratingGV))
+
+averagesbygroup$group = factor(averagesbygroup$group, levels = rev(levels(factor(averagesbygroup$group))))
+
+## Change variables of interest to factors for graphing
+averagesbygroup$Phase1PCond2 = factor(averagesbygroup$Phase1PCond2, labels = c("Less", "Agree", "More", "NoFb")) # changes levels for graphing
+
+groupmc_summary <-  summarySEwithin(averagesbygroup, measurevar="adjratingchange", withinvars=c("Phase1PCond2","group"), idvar="subjid")
+
+groupmc_summary
+```
+
+## Group centered adjusted mean change LIKED
+
+```{r plotMeanChangeLiked}
+age_point <-  ggplot(averagesbygroup, aes(x=Phase1PCond2, y=adjratingchange, color=group, group=group)) 
+
+age_point + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.width = .2), size=2, alpha=.5) +
+    #scale_color_brewer(palette="Paired") +
+    scale_color_manual(values=c("#6baed6","#1f78b4")) + 
+  geom_errorbar(data=groupmc_summary, aes(ymin=adjratingchange-se, ymax=adjratingchange+se), width=.4, position=position_dodge(.7), size=1, alpha=1, color="black") +
+  geom_point(data=groupmc_summary, position=position_dodge(.7), stat="identity", size=4, mapping=aes(x=Phase1PCond2, y=adjratingchange), alpha=1, color="black") + 
+  xlab("Peer Feedback") + 
+  ylab("Change in Preference") + 
+  #scale_y_continuous(limits = c(-.7, .7), breaks=seq(-.7, .7,.1), labels=function(x) round(x, 2)) +
+  xlim("NoFb", "Agree", "More", "Less") +
+  beckys.theme.conference +
+  geom_hline(aes(yintercept=0), size=.75) + 
+  theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
+
+#ggsave("figures/BehavMainEffectsDiss.pdf", width=7, height=5, dpi=300)
+```
+
+## Summary stats for mean change group centered MATCHED LIKED
+
+```{r groupCentSummaryMatched}
+# Summarise phasediffrating and adj phasediffrating by subject
+## categorically
+averagesbygroup <- plyr::ddply(matchedLikeAll, c("subjid", "Phase1PCond2", "group"), summarise, adjratingchange=mean(adjphasediffratingGV))
+
+averagesbygroup$group = factor(averagesbygroup$group, levels = rev(levels(factor(averagesbygroup$group))))
+
+## Change variables of interest to factors for graphing
+averagesbygroup$Phase1PCond2 = factor(averagesbygroup$Phase1PCond2, labels = c("Less", "Agree", "More", "NoFb")) # changes levels for graphing
+
+groupmc_summary <-  summarySEwithin(averagesbygroup, measurevar="adjratingchange", withinvars=c("Phase1PCond2","group"), idvar="subjid")
+
+groupmc_summary
+```
+
+### Group centered adjusted mean change MATCHED LIKED
+
+```{r plotMeanChangeMatched}
+age_point <-  ggplot(averagesbygroup, aes(x=Phase1PCond2, y=adjratingchange, color=group, group=group)) 
+
+age_point + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.width = .2), size=2, alpha=.5) +
+    #scale_color_brewer(palette="Paired") +
+    scale_color_manual(values=c("#6baed6","#1f78b4")) + 
+  geom_errorbar(data=groupmc_summary, aes(ymin=adjratingchange-se, ymax=adjratingchange+se), width=.4, position=position_dodge(.7), size=1, alpha=1, color="black") +
+  geom_point(data=groupmc_summary, position=position_dodge(.7), stat="identity", size=4, mapping=aes(x=Phase1PCond2, y=adjratingchange), alpha=1, color="black") + 
+  xlab("Peer Feedback") + 
+  ylab("Change in Wanting") + 
+  #scale_y_continuous(limits = c(-.7, .7), breaks=seq(-.7, .7,.1), labels=function(x) round(x, 2)) +
+  xlim("NoFb", "Agree", "More", "Less") +
+  beckys.theme.conference +
+  geom_hline(aes(yintercept=0), size=.75) + 
+  theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
+
+#ggsave("figures/BehavMainEffectsDiss.pdf", width=7, height=5, dpi=300)
+```
+
+# Statistics
+
+```{r stats}
+# Does age group predict baseline ratings? 
+# Liked Only
+baseline = lmer(p1rating_gmcenter ~ group + (1|subjid), data=likedAll) 
+summary(baseline) 
+## Nope - no difference at baseline
+
+# Matched Liked
+baseline = lmer(p1rating_gmcenter ~ group + (1|subjid), data=matchedLikeAll) 
+summary(baseline) 
+# teens might like things slightly more on average with this matched ratings set 
+
+
+## Is there an interaction with group? 
+# Liked
+groupinteraction = lmer(phasediffrating ~ p1rating_gmcenter+pos_neg*group+(1+p1rating_gmcenter+pos_neg|subjid), data=likedAll)
+summary(groupinteraction)
+
+# Matched Liked
+groupinteraction = lmer(phasediffrating ~ p1rating_gmcenter+pos_neg*group+(1+p1rating_gmcenter+pos_neg|subjid), data=matchedLikeAll)
+summary(groupinteraction)
+
+###  treat pos/neg as factor
+
+likedAll$pos_negFact <- as.factor(likedAll$pos_neg)
+matchedLikeAll$pos_negFact <- as.factor(matchedLikeAll$pos_neg)
+
+# Liked
+groupinteraction = lmer(phasediffrating ~ p1rating_gmcenter+relevel(pos_negFact, "0")*group+(1+p1rating_gmcenter+pos_neg|subjid), data=likedAll)
+summary(groupinteraction)
+
+# Matched Liked
+groupinteraction = lmer(phasediffrating ~ p1rating_gmcenter+relevel(pos_negFact, "0")*group+(1+p1rating_gmcenter+pos_neg|subjid), data=matchedLikeAll)
+summary(groupinteraction)
+```
+
