@@ -449,7 +449,7 @@ abs_point + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.widt
 ![](socInflBehav_files/figure-markdown_github/plotAbsoluteChange-1.png)
 
 ``` r
-ggsave(file.path(figureDir,"absoluteChangeDiss.pdf"), width=5, height=7, dpi=300)
+#ggsave(file.path(figureDir,"absoluteChangeDiss.pdf"), width=5, height=7, dpi=300)
 ```
 
 ``` r
@@ -485,7 +485,7 @@ abs_point2 + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.wid
 ![](socInflBehav_files/figure-markdown_github/plotAbsoluteChangePlotbyPeerCond-1.png)
 
 ``` r
-ggsave(file.path(figureDir,"absoluteChangeAllDiss.pdf"), width=8, height=7, dpi=300)
+#ggsave(file.path(figureDir,"absoluteChangeAllDiss.pdf"), width=8, height=7, dpi=300)
 ```
 
 Statistical analysis of volitility
@@ -627,7 +627,7 @@ age_point + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.widt
 ![](socInflBehav_files/figure-markdown_github/plotResidChange-1.png)
 
 ``` r
-ggsave(file.path(figureDir,"BehavMainEffectsDiss.pdf"), width=7, height=5, dpi=300)
+#ggsave(file.path(figureDir,"BehavMainEffectsDiss.pdf"), width=7, height=5, dpi=300)
 ```
 
 Statistical analysis of change in preference as function of social influence

@@ -233,7 +233,7 @@ mag_summary
 
 ## Plot absolute change in preference rating graph 
 
-```{r plotAbsoluteChange}
+```{r plotAbsoluteChange, fig.width=5, fig.height=7, dpi=300}
 abs_point <-  ggplot(mageffect, aes(x=group, y=absratingchange, color=group, group=group)) 
 
 abs_point + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.width = .2), size=3, alpha=.5) + 
@@ -247,7 +247,7 @@ abs_point + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.widt
   #geom_hline(aes(yintercept=0), size=.75) + 
   theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'), axis.title.y=element_text(margin=margin(0, 10, 0, 0)))
 
-ggsave(file.path(figureDir,"absoluteChangeDiss.pdf"), width=5, height=7, dpi=300)
+#ggsave(file.path(figureDir,"absoluteChangeDiss.pdf"), width=5, height=7, dpi=300)
 ```
 
 ```{r calculateAbsoluteChangeAveragesbyPeerCond}
@@ -259,7 +259,7 @@ mag_summary = summarySE(mageffect, measurevar="absratingchange", groupvars=c("Ph
 mag_summary
 ```
 
-```{r plotAbsoluteChangePlotbyPeerCond}
+```{r plotAbsoluteChangePlotbyPeerCond, fig.width=8, fig.height=7, dpi=300}
 abs_point2 <-  ggplot(mageffect, aes(x=Phase1PCond2, y=absratingchange, color=group, group=group)) 
 
 abs_point2 + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.width = .2), size=3, alpha=.5) + 
@@ -275,7 +275,7 @@ abs_point2 + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.wid
   theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'), axis.title.y=element_text(margin=margin(0, 10, 0, 0))) +
     beckys.theme.conference
 
-ggsave(file.path(figureDir,"absoluteChangeAllDiss.pdf"), width=8, height=7, dpi=300)
+#ggsave(file.path(figureDir,"absoluteChangeAllDiss.pdf"), width=8, height=7, dpi=300)
 ```
 
 ## Statistical analysis of volitility 
@@ -322,7 +322,7 @@ age_point + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.widt
   geom_hline(aes(yintercept=0), size=.75) + 
   theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
 
-ggsave(file.path(figureDir,"BehavMainEffectsDiss.pdf"), width=7, height=5, dpi=300)
+#ggsave(file.path(figureDir,"BehavMainEffectsDiss.pdf"), width=7, height=5, dpi=300)
 ```
 
 ## Statistical analysis of change in preference as function of social influence
