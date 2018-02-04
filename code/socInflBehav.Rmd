@@ -3,12 +3,6 @@ title: "BehavPaperCode"
 author: "Rebecca Martin"
 date: "7/11/2017"
 output: 
-    github_document:
-        df_print: 'paged'
-        toc: true
-        fig_width: 5
-        fig_height: 5
-        dev: png
     html_document:
         df_print: 'paged'
         toc: true
@@ -19,6 +13,12 @@ output:
         code_download: true
         self_contained: true
         code_folding: 'hide'
+    github_document:
+        df_print: 'paged'
+        toc: true
+        fig_width: 5
+        fig_height: 5
+        dev: png
 ---
 # Set up 
 
