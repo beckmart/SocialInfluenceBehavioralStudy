@@ -3,6 +3,9 @@ title: "BehavPaperCode"
 author: "Rebecca Martin"
 date: "7/11/2017"
 output: 
+    github_document:
+        df_print: 'paged'
+        toc: true
     html_document:
         df_print: 'paged'
         toc: true
