@@ -1028,7 +1028,7 @@ socialscatter +
 ![](socInflBehav_files/figure-markdown_github/socialPlots-1.png)
 
 ``` r
-ggsave(file.path(figureDir,"SocialCorrelations.pdf"), width=9, height=7, dpi=300)
+#ggsave(file.path(figureDir,"SocialCorrelations.pdf"), width=9, height=7, dpi=300)
 ```
 
 ### Food and Eating Health Habit Plots
@@ -1051,5 +1051,5 @@ foodscatter +
 ![](socInflBehav_files/figure-markdown_github/foodPlots-1.png)
 
 ``` r
-ggsave(file.path(figureDir,"FoodCorrelations.pdf"), width=9, height=7, dpi=300)
+#ggsave(file.path(figureDir,"FoodCorrelations.pdf"), width=9, height=7, dpi=300)
 ```

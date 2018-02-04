@@ -3,6 +3,10 @@ title: "BehavPaperCode"
 author: "Rebecca Martin"
 date: "7/11/2017"
 output: 
+    github_document:
+        df_print: 'paged'
+        toc: true
+        dev: png
     html_document:
         df_print: 'paged'
         toc: true
@@ -13,12 +17,6 @@ output:
         code_download: true
         self_contained: true
         code_folding: 'hide'
-    github_document:
-        df_print: 'paged'
-        toc: true
-        fig_width: 5
-        fig_height: 5
-        dev: png
 ---
 # Set up 
 
@@ -478,7 +476,7 @@ ggsave(file.path(figureDir,"GenderCorrelations.pdf"), width=5, height=5, dpi=300
 
 ### Social Individual Differences
 
-```{r socialPlots, warning=FALSE}
+```{r socialPlots, warning=FALSE, fig.width=9, fig.height=7, dpi=300}
 social <- subset(averaged3, select=c("subjid","ConformityScore", "ResistancetoPeerInfluence", "NeedToBelong","SocialDesirabilityZ", "RejectionSensitivity_Z", "MediaInfluence"))  
 social2 <- melt(averaged3, id.vars=c("subjid", "group", "ConformityScore"), measure.vars=c("ResistancetoPeerInfluence", "NeedToBelong","SocialDesirabilityZ", "RejectionSensitivity_Z", "MediaInfluence"))
 
@@ -492,12 +490,12 @@ socialscatter +
   beckys.theme.facet +
   geom_hline(aes(yintercept=0), size=.25)
 
-ggsave(file.path(figureDir,"SocialCorrelations.pdf"), width=9, height=7, dpi=300)
+#ggsave(file.path(figureDir,"SocialCorrelations.pdf"), width=9, height=7, dpi=300)
 ```
 
 ### Food and Eating Health Habit Plots
 
-```{r foodPlots, warning=FALSE}
+```{r foodPlots, warning=FALSE, fig.width=9, fig.height=7, dpi=300}
 food <- subset(averaged3, select=c("subjid", "group", "ConformityScore","HungerLevel", "Atetime", "DisorderedEating", "BMIGroup","BodyImage", "SelfDescribedWeight", "DietingStatus", "HealthyEating"))
 food2 <- melt(averaged3, id.vars=c("subjid", "group", "ConformityScore"), measure.vars=c("HungerLevel", "Atetime", "DisorderedEating", "BMIGroup","BodyImage", "SelfDescribedWeight", "DietingStatus", "HealthyEating"))
 
@@ -511,6 +509,6 @@ foodscatter +
   beckys.theme.facet +
   geom_hline(aes(yintercept=0), size=.25) 
 
-ggsave(file.path(figureDir,"FoodCorrelations.pdf"), width=9, height=7, dpi=300)
+#ggsave(file.path(figureDir,"FoodCorrelations.pdf"), width=9, height=7, dpi=300)
 ```
 
