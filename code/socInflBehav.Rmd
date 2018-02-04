@@ -233,7 +233,7 @@ mag_summary
 
 ## Plot absolute change in preference rating graph 
 
-```{r plotAbsoluteChange, fig.width=5, fig.height=7, dpi=300}
+```{r plotAbsoluteChange, fig.width=5, fig.height=8, dpi=300}
 abs_point <-  ggplot(mageffect, aes(x=group, y=absratingchange, color=group, group=group)) 
 
 abs_point + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.width = .2), size=3, alpha=.5) + 
@@ -259,7 +259,7 @@ mag_summary = summarySE(mageffect, measurevar="absratingchange", groupvars=c("Ph
 mag_summary
 ```
 
-```{r plotAbsoluteChangePlotbyPeerCond, fig.width=8, fig.height=7, dpi=300}
+```{r plotAbsoluteChangePlotbyPeerCond, fig.width=8, fig.height=8, dpi=300}
 abs_point2 <-  ggplot(mageffect, aes(x=Phase1PCond2, y=absratingchange, color=group, group=group)) 
 
 abs_point2 + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.width = .2), size=3, alpha=.5) + 
