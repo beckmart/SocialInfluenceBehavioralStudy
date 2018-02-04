@@ -19,6 +19,10 @@ output:
 # Set up 
 ## Settings
 
+```{r settings}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
 ```{r setDirs}
 root <- rprojroot::find_rstudio_root_file()
 dataDir <- file.path(root, 'data')
@@ -36,7 +40,6 @@ library(lme4)
 library(lmerTest)
 library(car)
 source(file.path(codeDir, "CreateFunctions.R"))
-source(file.path(codeDir, "correlate_multiple_specific_variables.R"))
 ```
 
 ## Read in data and make subsets
@@ -156,7 +159,8 @@ beckys.theme.conference = theme(panel.background = element_rect(fill='transparen
                         strip.text.x = element_text(size = 16))
 ```
 
-# Plot 
+# Plots 
+These plots are for (A) Liked Items Only and (B) Liked items that were given similar average ratings (within .5 points of each other) by YAs and adults 
 
 ## Distribution of ratings density plot LIKED
 
@@ -175,6 +179,8 @@ distbytrial = ggplot(likedAll, aes(x=phase1rating,fill=group)) +
   theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
 
 distbytrial
+
+ggsave(file.path(figureDir,"LikingDistribution.pdf"), width=7, height=5, dpi=300)
 ```
 
 ## Distribution of ratings density plot MATCHED LIKED
@@ -194,6 +200,8 @@ distbytrial = ggplot(matchedLikeAll, aes(x=phase1rating,fill=group)) +
   theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
 
 distbytrial
+
+ggsave(file.path(figureDir,"MatchedLikingDistribution.pdf"), width=7, height=5, dpi=300)
 ```
 
 ## Average ratings by group LIKED
@@ -219,7 +227,7 @@ scale_color_manual(values=c("#6baed6","#1f78b4")) +
   #geom_hline(aes(yintercept=0), size=.75) + 
   theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
 
-# ggsave("figures/meanRatingbyGroup.pdf", width=5, height=7, dpi=300)
+ggsave(file.path(figureDir,"LikingAveragedRatings.pdf"), width=7, height=5, dpi=300)
 ```
 
 ## Average ratings by group MATCHED LIKED
@@ -245,7 +253,7 @@ scale_color_manual(values=c("#6baed6","#1f78b4")) +
   #geom_hline(aes(yintercept=0), size=.75) + 
   theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
 
-# ggsave("figures/meanRatingbyGroup.pdf", width=5, height=7, dpi=300)
+ggsave(file.path(figureDir,"MatchedLikingAvgRatings.pdf"), width=7, height=5, dpi=300)
 ```
 
 ## Summary stats for mean change group centered LIKED
@@ -283,7 +291,7 @@ age_point + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.widt
   geom_hline(aes(yintercept=0), size=.75) + 
   theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
 
-#ggsave("figures/BehavMainEffectsDiss.pdf", width=7, height=5, dpi=300)
+ggsave(file.path(figureDir,"LikingSocInfl.pdf"), width=7, height=5, dpi=300)
 ```
 
 ## Summary stats for mean change group centered MATCHED LIKED
@@ -314,14 +322,14 @@ age_point + geom_point(position=position_jitterdodge(dodge.width=.7, jitter.widt
   geom_errorbar(data=groupmc_summary, aes(ymin=adjratingchange-se, ymax=adjratingchange+se), width=.4, position=position_dodge(.7), size=1, alpha=1, color="black") +
   geom_point(data=groupmc_summary, position=position_dodge(.7), stat="identity", size=4, mapping=aes(x=Phase1PCond2, y=adjratingchange), alpha=1, color="black") + 
   xlab("Peer Feedback") + 
-  ylab("Change in Wanting") + 
+  ylab("Change in Preference") + 
   #scale_y_continuous(limits = c(-.7, .7), breaks=seq(-.7, .7,.1), labels=function(x) round(x, 2)) +
   xlim("NoFb", "Agree", "More", "Less") +
   beckys.theme.conference +
   geom_hline(aes(yintercept=0), size=.75) + 
   theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black'))
 
-#ggsave("figures/BehavMainEffectsDiss.pdf", width=7, height=5, dpi=300)
+ggsave(file.path(figureDir,"MatchedLikingSocInfl.pdf"), width=7, height=5, dpi=300)
 ```
 
 # Statistics

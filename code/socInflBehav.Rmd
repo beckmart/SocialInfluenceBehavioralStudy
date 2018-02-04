@@ -60,22 +60,22 @@ phase2merged$group <- factor(phase2merged$group, labels = c("Adults", "Adolesc")
 
 ```{r centerAndResidualize}
 # all
-p1_gmcenter = scale(phase2merged$phase1rating, scale=F)
+p1_gmcenter <-  scale(phase2merged$phase1rating, scale=F)
 phase2merged$p1rating_gmcenter <- p1_gmcenter
 phase2merged$p1rating_gmcenter <- as.numeric(phase2merged$p1rating_gmcenter)
 
 # teens
-p1_gmcenter = scale(teens$phase1rating, scale=F)
+p1_gmcenter <-  scale(teens$phase1rating, scale=F)
 teens$p1rating_gmcenter <- p1_gmcenter
 teens$p1rating_gmcenter <- as.numeric(teens$p1rating_gmcenter)
 
 # adults
-p1_gmcenter = scale(adults$phase1rating, scale=F)
+p1_gmcenter <-  scale(adults$phase1rating, scale=F)
 adults$p1rating_gmcenter <- p1_gmcenter
 adults$p1rating_gmcenter <- as.numeric(adults$p1rating_gmcenter)
 
 # residuals
-adjmeans_all = lmer(phasediffrating ~ p1rating_gmcenter+(1+p1rating_gmcenter|subjid), data=phase2merged)
+adjmeans_all <-  lmer(phasediffrating ~ p1rating_gmcenter+(1+p1rating_gmcenter|subjid), data=phase2merged)
 phase2merged$resid <- resid(adjmeans_all)
 
 ## Center by age group
@@ -126,7 +126,7 @@ beckys.theme.facet = theme(panel.background = element_rect(fill='transparent', c
 ## Distribution of ratings density plot
 
 ```{r distributionPlot}
-distbytrial = ggplot(phase2merged, aes(x=phase1rating,fill=group)) + 
+distbytrial <-  ggplot(phase2merged, aes(x=phase1rating,fill=group)) + 
   geom_density(adjust=2, alpha=.7) + # add , colour=NA if want to take out black outlines
   beckys.theme +
   scale_x_continuous(limits = c(1, 7), breaks=seq(1, 7,1)) +
@@ -146,8 +146,8 @@ distbytrial
 
 ```{r calculateAverageInitialRatings}
 overallaverages <- plyr::ddply(phase2merged, c("subjid","group"), summarise, phase1rating=mean(phase1rating))
-overallaverages$group = factor(overallaverages$group, levels = rev(levels(factor(overallaverages$group))))
-overallavg_summary = summarySE(overallaverages, measurevar="phase1rating", groupvars=c("group"))
+overallaverages$group <-  factor(overallaverages$group, levels = rev(levels(factor(overallaverages$group))))
+overallavg_summary <-  summarySE(overallaverages, measurevar="phase1rating", groupvars=c("group"))
 
 overallavg_summary
 ```
@@ -174,22 +174,22 @@ scale_color_manual(values=c("#6baed6","#1f78b4")) +
 
 ```{r baselineDiffsRegressions}
 # Does age group predict baseline ratings? 
-baseline = lmer(p1rating_gmcenter ~ group + (1|subjid), data=phase2merged) 
+baseline <-  lmer(p1rating_gmcenter ~ group + (1|subjid), data=phase2merged) 
 summary(baseline)
-confint(baseline, level=.9)
+confint(baseline, level=.9, method="Wald")
 ```
 
 Get percentages for distribution differences
-```{r distDescriptiveStats}
+```{r distDescriptiveStats, warning=FALSE}
 ## Are means betw. groups different? 
 groupmeans <- t.test(phase1rating ~ group, data=phase2merged, na.rm=TRUE)
 groupmeans
 
-groupmeans = ddply(phase2merged, .(subjid, group), summarise, initrating=mean(phase1rating))
-groupsummary = summarySE(groupmeans, measurevar="initrating", groupvars="group")
+groupmeans <-  ddply(phase2merged, .(subjid, group), summarise, initrating=mean(phase1rating))
+groupsummary <-  summarySE(groupmeans, measurevar="initrating", groupvars="group")
 
 ## Do k-s test to show how distribution is different
-ks.test(phase2merged$phase1rating[phase2merged$group=="YAs"], phase2merged$phase1rating[phase2merged$group=="Adults"], na.rm=TRUE)
+ks.test(phase2merged$phase1rating[phase2merged$group=="Adolesc"], phase2merged$phase1rating[phase2merged$group=="Adults"], na.rm=TRUE)
 
 ## calculate proportions of neg, extreme and pos ratings
 proportions <- phase2merged %>% group_by(group, subjid) %>% 
@@ -280,12 +280,12 @@ ggsave(file.path(figureDir,"absoluteChangeAllDiss.pdf"), width=8, height=7, dpi=
 ### Change with random slopes
 
 ### Interaction
-groupchangeinteraction = lmer(absphasediffrating ~ Phase1PeerDiff_combcontrol*group+(1+Phase1PeerDiff_combcontrol|subjid), data=phase2merged)
+groupchangeinteraction <-  lmer(absphasediffrating ~ Phase1PeerDiff_combcontrol*group+(1+Phase1PeerDiff_combcontrol|subjid), data=phase2merged)
 summary(groupchangeinteraction)
-confint(groupchangeinteraction, level=0.9)
+confint(groupchangeinteraction, level=0.9, method="Wald")
 
 ### Interaction no peer feedback
-groupchangeinteraction2 = lmer(absphasediffrating ~ group+(1|subjid), data=phase2merged)
+groupchangeinteraction2 <-  lmer(absphasediffrating ~ group+(1|subjid), data=phase2merged)
 summary(groupchangeinteraction2)
 ```
 
@@ -293,15 +293,15 @@ summary(groupchangeinteraction2)
 ## Calculate residualized change (our social influence measure)
 
 ```{r calculateResidChange}
-ageeffect = ddply(phase2merged, .(subjid, group, Phase1PCond2), summarise, diffscore=mean(resid))
-ageeffect$Phase1PCond2 = factor(ageeffect$Phase1PCond2, labels = c("Less", "Agree", "More", "NoFb"))
-ageeffect$group = factor(ageeffect$group, levels = rev(levels(factor(ageeffect$group))))
-age_summary = summarySE(ageeffect, measurevar="diffscore", groupvars=c("Phase1PCond2", "group"))
+ageeffect <-  ddply(phase2merged, .(subjid, group, Phase1PCond2), summarise, diffscore=mean(resid))
+ageeffect$Phase1PCond2 <-  factor(ageeffect$Phase1PCond2, labels = c("Less", "Agree", "More", "NoFb"))
+ageeffect$group <-  factor(ageeffect$group, levels = rev(levels(factor(ageeffect$group))))
+age_summary <-  summarySE(ageeffect, measurevar="diffscore", groupvars=c("Phase1PCond2", "group"))
 
 age_summary
 ```
 
-## Plot residualized change in preference rating
+## Plot residualized change in preference rating (our social influence measure)
 
 ```{r plotResidChange}
 age_point <-  ggplot(ageeffect, aes(x=Phase1PCond2, y=diffscore, color=group, group=group)) 
@@ -326,21 +326,36 @@ ggsave(file.path(figureDir,"BehavMainEffectsDiss.pdf"), width=7, height=5, dpi=3
 ```{r socInflRegressions}
 ### Conformity with random slopes
 #### Note: pos_neg is a -1, 0, 1 variable where -1=peers lower, 0=peers agree or no feedback, 1=peers higher
+```
 
+```{r socInflRegressions-teens}
 ## Main effect of Peer Cond for teens
 teenresults <- lmer(phasediffrating ~ p1rating_gmcenter + pos_neg + (1 + p1rating_gmcenter + pos_neg|subjid), data=teens)
 summary(teenresults)
-confint(teenresults, level=0.9)
+```
 
+```{r socInflRegressions-teens-confint}
+confint(teenresults, level=0.9, method='Wald')
+```
+
+```{r socInflRegressions-adults}
 ## Main effect of Peer Cond for adults
-adultresults = lmer(phasediffrating ~ p1rating_gmcenter+pos_neg+(1+p1rating_gmcenter+pos_neg|subjid), data=adults)
+adultresults <- lmer(phasediffrating ~ p1rating_gmcenter + pos_neg + (1 + p1rating_gmcenter + pos_neg | subjid), data=adults)
 summary(adultresults)
-confint(adultresults, level=0.9)
+```
 
+```{r socInflRegressions-adults-confint}
+confint(adultresults, level=0.9, method='Wald')
+```
+
+```{r socInflRegressions-teens-adults}
 ## Interaction with teens and adults?
-groupinteraction = lmer(phasediffrating ~ p1rating_gmcenter+pos_neg*group+(1+p1rating_gmcenter+pos_neg|subjid), data=phase2merged)
+groupinteraction <- lmer(phasediffrating ~ p1rating_gmcenter + pos_neg*group + (1 + p1rating_gmcenter + pos_neg | subjid), data=phase2merged)
 summary(groupinteraction)
-confint(groupinteraction, level=0.9)
+```
+
+```{r socInflRegressions-teens-adults-confint}
+confint(groupinteraction, level=0.9, method='Wald')
 ```
 
 # Individual Differences Analysis
@@ -364,7 +379,7 @@ averagedData$conformresid <- resid(conformMod)
 averaged3 <- plyr::rename(averagedData, c("conformresid"="ConformityScore","STAI_CombZ"="AnxietyZ","BDI_Z"="DepressionZ", "RPI"="ResistancetoPeerInfluence","n2belong"="NeedToBelong","SCOFF"="DisorderedEating", "BMI.Group"="BMIGroup", "WASI.IQ"="IQ", "TAS"="Alexithymia","MMIS"="MediaInfluence", "BESC"="BodyImage", "CDI_BDI"="Depression", "STAI_Combined"="Anxiety", "TAN.MEAN"="PubertalStatus", "CRSQ.Anxiety.RSQ"="RejectionSensitivity", "MCSD"="SocialDesirability","SDS"="SocialDesirabilityTeens","YRBSS_Dieting"="DietingStatus","YRBSS_Health_index"="HealthyEating","YRBSS_Self_described_weight"="SelfDescribedWeight", "RSQ_Z"="RejectionSensitivity_Z", "SocDesire_Z"="SocialDesirabilityZ"))
 
 # change levels
-averaged3$group = factor(averaged3$group, levels = rev(levels(factor(averaged3$group))))
+averaged3$group <-  factor(averaged3$group, levels = rev(levels(factor(averaged3$group))))
 
 # Rename for lmer regression
 phase2merged2 <- plyr::rename(phase2merged, c("phasediffrating"="RatingChange","p1rating_gmcenter"="InitialRating", "Sex"="Gender", "group"="AgeGroup", "pos_neg"="SocialInfluence","STAI_CombZ"="AnxietyZ","BDI_Z"="DepressionZ", "RPI"="ResistancetoPeerInfluence","n2belong"="NeedToBelong","SCOFF"="DisorderedEating", "BMI.Group"="BMIGroup", "WASI.IQ"="IQ", "TAS"="Alexithymia","MMIS"="MediaInfluence", "BESC"="BodyImage", "CDI_BDI"="Depression", "STAI_Combined"="Anxiety", "TAN.MEAN"="PubertalStatus", "CRSQ.Anxiety.RSQ"="RejectionSensitivity", "MCSD"="SocialDesirability","SDS"="SocialDesirabilityTeens","YRBSS_Dieting"="DietingStatus","YRBSS_Health_index"="HealthyEating","YRBSS_Self_described_weight"="SelfDescribedWeight", "RSQ_Z"="RejectionSensitivityZ", "SocDesire_Z"="SocialDesirabilityZ"))
@@ -387,18 +402,18 @@ allgroups <- subset(averaged3, select=c("ConformityScore", "conform2", "Sex", "A
 ## Get Individual Differences Correlations
 
 ```{r IndDiffsCorr}
-multicor.sig(adultsAll[,1:2], adultsAll[,4:18], "corrResults/adultIndDiffscorrsig.txt")
-multicor.sig(teensAll[,1:2], teensAll[,4:23], "corrResults/teenIndDiffscorrsig.txt")
-
-multicor(adultsAll[,1:2], adultsAll[,4:18], "corrResults/adultIndDiffscorr.txt")
-multicor(teensAll[,1:2], teensAll[,4:23], "corrResults/teenIndDiffscorr.txt")
-
-## All groups
-multicor.sig(allgroups[,1:2], allgroups[,4:18], "corrResults/allIndDiffscorrsig.txt")
-multicor(allgroups[,1:2], allgroups[,4:18], "corrResults/allIndDiffscorr.txt")
-
-## gender? 
-multicor.sig(averaged3[,61:62], averaged3[,6:39], "corrResults/genderIndDiffscorr.txt")
+# multicor.sig(adultsAll[,1:2], adultsAll[,4:18], file.path("corrResults", "adultIndDiffscorrsig.txt"))
+# multicor.sig(teensAll[,1:2], teensAll[,4:23], file.path("corrResults", "teenIndDiffscorrsig.txt"))
+# 
+# multicor(adultsAll[,1:2], adultsAll[,4:18], file.path("corrResults", "adultIndDiffscorr.txt"))
+# multicor(teensAll[,1:2], teensAll[,4:23], file.path("corrResults", "teenIndDiffscorr.txt"))
+# 
+# ## All groups
+# multicor.sig(allgroups[,1:2], allgroups[,4:18], file.path("corrResults", "allIndDiffscorrsig.txt"))
+# multicor(allgroups[,1:2], allgroups[,4:18], file.path("corrResults", "allIndDiffscorr.txt"))
+# 
+# ## gender? 
+# multicor.sig(averaged3[,61:62], averaged3[,6:39], file.path("corrResults", "genderIndDiffscorr.txt"))
 ```
 
 ## Statistical Analysis of Individual differences data
@@ -414,7 +429,7 @@ summary(everything)
 
 ### General Health Measures
 
-```{r genHealthPlots}
+```{r genHealthPlots, warning=FALSE}
 
 # General Health
 general <- subset(averaged3, select=c("subjid", "ConformityScore","group", "Age", "AnxietyZ", "DepressionZ")) 
@@ -426,18 +441,18 @@ generalscatter +
   geom_point() + 
   scale_color_brewer(palette="Paired") +
   geom_smooth(method="lm", se=TRUE) +
-  facet_wrap( ~ variable, scales="free") +
-  ylab("Residualized Conformity Score") + 
+  facet_wrap( ~ variable, scales="free", nrow=3) +
+  ylab("Conformity Score") + 
   beckys.theme.facet +
   #scale_y_continuous(limits = c(-.2,.2), breaks=seq(-.4,.4,.05), labels=abbreviate, expand = c(0,0)) + 
   geom_hline(aes(yintercept=0), size=.25) 
   
-# ggsave - make super wide
+ggsave(file.path(figureDir,"GenHealthCorrelations.pdf"), width=7, height=7, dpi=300)
 ```
 
 ### Gender
 
-```{r genderPlot}
+```{r genderPlot, warning=FALSE}
 ## Gender
 gender_summary = summarySE(averaged3, measurevar="ConformityScore", groupvars=c("Sex", "group"))
 
@@ -449,14 +464,15 @@ genderscatter +
   scale_color_brewer(palette="Paired") +
   ylab("Conformity Score") + 
   beckys.theme.conference +
+  theme(axis.line.x=element_line(color = 'black'),legend.position = "none", axis.line.y=element_line(color = 'black')) +
   geom_hline(aes(yintercept=0), size=.25) 
 
-# ggsave 
+ggsave(file.path(figureDir,"GenderCorrelations.pdf"), width=5, height=5, dpi=300)
 ```
 
 ### Social Individual Differences
 
-```{r socialPlots}
+```{r socialPlots, warning=FALSE}
 social <- subset(averaged3, select=c("subjid","ConformityScore", "ResistancetoPeerInfluence", "NeedToBelong","SocialDesirabilityZ", "RejectionSensitivity_Z", "MediaInfluence"))  
 social2 <- melt(averaged3, id.vars=c("subjid", "group", "ConformityScore"), measure.vars=c("ResistancetoPeerInfluence", "NeedToBelong","SocialDesirabilityZ", "RejectionSensitivity_Z", "MediaInfluence"))
 
@@ -465,30 +481,30 @@ socialscatter +
   geom_point() + 
   scale_color_brewer(palette="Paired") +
   geom_smooth(method="lm", se=TRUE) +
-  facet_wrap( ~ variable, scales="free") +
+  facet_wrap( ~ variable, scales="free", nrow=4) +
   ylab("Conformity Score") + 
   beckys.theme.facet +
   geom_hline(aes(yintercept=0), size=.25)
 
-# ggsave - make super wide
+ggsave(file.path(figureDir,"SocialCorrelations.pdf"), width=9, height=7, dpi=300)
 ```
 
 ### Food and Eating Health Habit Plots
 
-```{r foodPlots}
+```{r foodPlots, warning=FALSE}
 food <- subset(averaged3, select=c("subjid", "group", "ConformityScore","HungerLevel", "Atetime", "DisorderedEating", "BMIGroup","BodyImage", "SelfDescribedWeight", "DietingStatus", "HealthyEating"))
 food2 <- melt(averaged3, id.vars=c("subjid", "group", "ConformityScore"), measure.vars=c("HungerLevel", "Atetime", "DisorderedEating", "BMIGroup","BodyImage", "SelfDescribedWeight", "DietingStatus", "HealthyEating"))
 
 foodscatter <- ggplot(food2, aes(x=value, y=ConformityScore, colour=group)) 
 foodscatter + 
-  geom_point() + 
+  geom_jitter(width = 0.2) + 
   scale_color_brewer(palette="Paired") +
   geom_smooth(method="lm", se=TRUE) +
-  facet_wrap( ~ variable, scales="free") +
+  facet_wrap( ~ variable, scales="free", nrow=4) +
   ylab("Conformity Score") + 
   beckys.theme.facet +
   geom_hline(aes(yintercept=0), size=.25) 
 
-# ggsave - make extra wide
+ggsave(file.path(figureDir,"FoodCorrelations.pdf"), width=9, height=7, dpi=300)
 ```
 
